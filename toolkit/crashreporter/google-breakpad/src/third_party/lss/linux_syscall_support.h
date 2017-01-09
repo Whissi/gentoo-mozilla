@@ -173,6 +173,13 @@ extern "C" {
 # undef __NR_waitpid
 #endif
 
+#ifdef pread64
+#undef pread64
+#endif
+#ifdef pwrite64
+#undef pwrite64
+#endif
+
 /* As glibc often provides subtly incompatible data structures (and implicit
  * wrapper functions that convert them), we provide our own kernel data
  * structures for use by the system calls.
