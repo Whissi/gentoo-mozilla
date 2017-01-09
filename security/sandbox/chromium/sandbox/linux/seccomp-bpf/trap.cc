@@ -174,7 +174,11 @@ void Trap::SigSys(int nr, LinuxSigInfo* info, ucontext_t* ctx) {
   // If the version of glibc doesn't include this information in
   // siginfo_t (older than 2.17), we need to explicitly copy it
   // into an arch_sigsys structure.
-  memcpy(&sigsys, &info->_sifields, sizeof(sigsys));
+#if defined(__GLIBC__)
+   memcpy(&sigsys, &info->_sifields, sizeof(sigsys));
+#else
+  memcpy(&sigsys, &info->__si_fields, sizeof(sigsys));
+#endif
 #endif
 
 #if defined(__mips__)
