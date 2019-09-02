@@ -823,7 +823,12 @@ FetchDriver::OnStartRequest(nsIRequest* aRequest) {
 
   // We should only get to the following code once.
   MOZ_ASSERT(!mPipeOutputStream);
-  MOZ_ASSERT(mObserver);
+
+  if (!mObserver) {
+    MOZ_ASSERT(false, "We should have mObserver here.");
+    FailWithNetworkError(NS_ERROR_UNEXPECTED);
+    return NS_ERROR_UNEXPECTED;
+  }
 
   mNeedToObserveOnDataAvailable = mObserver->NeedOnDataAvailable();
 
@@ -863,7 +868,8 @@ FetchDriver::OnStartRequest(nsIRequest* aRequest) {
     rv = httpChannel->GetResponseStatusText(statusText);
     MOZ_ASSERT(NS_SUCCEEDED(rv));
 
-    response = new InternalResponse(responseStatus, statusText);
+    response = new InternalResponse(responseStatus, statusText,
+                                    mRequest->GetCredentialsMode());
 
     UniquePtr<mozilla::ipc::PrincipalInfo> principalInfo(
         new mozilla::ipc::PrincipalInfo());
@@ -891,7 +897,8 @@ FetchDriver::OnStartRequest(nsIRequest* aRequest) {
     }
     MOZ_ASSERT(!result.Failed());
   } else {
-    response = new InternalResponse(200, NS_LITERAL_CSTRING("OK"));
+    response = new InternalResponse(200, NS_LITERAL_CSTRING("OK"),
+                                    mRequest->GetCredentialsMode());
 
     if (!contentType.IsEmpty()) {
       nsAutoCString contentCharset;
@@ -1468,6 +1475,8 @@ void FetchDriver::SetRequestHeaders(nsIHttpChannel* aChannel) const {
 }
 
 void FetchDriver::Abort() {
+  MOZ_DIAGNOSTIC_ASSERT(NS_IsMainThread());
+
   if (mObserver) {
 #ifdef DEBUG
     mResponseAvailableCalled = true;
