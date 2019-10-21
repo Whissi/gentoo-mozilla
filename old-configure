@@ -4744,7 +4744,7 @@ rm -f conftest*
         LIBS="$LIBS -luuid -lusp10 -lgdi32 -lwinmm -lwsock32 -luserenv -lsecur32"
         MOZ_FIX_LINK_PATHS=
 
-        MOZ_OPTIMIZE_FLAGS="-O1"
+        MOZ_OPTIMIZE_FLAGS="-O2"
 
         WIN32_CONSOLE_EXE_LDFLAGS=-mconsole
         WIN32_GUI_EXE_LDFLAGS=-mwindows
@@ -8589,7 +8589,7 @@ else
   echo "$ac_t""no" 1>&6
 fi
 
-	min_nss_version=3.44.1
+	min_nss_version=3.44.2
 	echo $ac_n "checking for NSS - version >= $min_nss_version""... $ac_c" 1>&6
 echo "configure:8595: checking for NSS - version >= $min_nss_version" >&5
 
@@ -10191,7 +10191,7 @@ fi
 
 
 case "$OS_TARGET" in
-WINNT|Darwin)
+WINNT|Darwin|OpenBSD)
 ;;
 Linux)
     case $CPU_ARCH in
@@ -10204,7 +10204,7 @@ Linux)
     esac
     ;;
 *)
-    # Only enable the sandbox by default on Linux, macOS, and Windows
+    # Only enable the sandbox by default on Linux, OpenBSD, macOS, and Windows
     MOZ_SANDBOX=
 ;;
 esac
