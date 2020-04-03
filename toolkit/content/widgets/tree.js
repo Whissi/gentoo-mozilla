@@ -278,6 +278,12 @@
           if (currCol.primary) {
             popupChild.setAttribute("disabled", "true");
           }
+          if (currElement.hasAttribute("closemenu")) {
+            popupChild.setAttribute(
+              "closemenu",
+              currElement.getAttribute("closemenu")
+            );
+          }
           aPopup.insertBefore(popupChild, refChild);
         }
       }
@@ -802,6 +808,10 @@
       );
 
       this.addEventListener("keydown", event => {
+        if (event.altKey) {
+          return;
+        }
+
         switch (event.keyCode) {
           case KeyEvent.DOM_VK_RETURN: {
             if (this._handleEnter(event)) {
