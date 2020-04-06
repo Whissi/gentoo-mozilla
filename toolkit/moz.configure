@@ -559,14 +559,29 @@ def av1(value):
     if value:
         return True
 
+option("--with-system-av1", help="Use system av1 (located with pkg-config)")
 
-@depends(target, when=av1 & compile_environment)
+system_libaom_info = pkg_check_modules('MOZ_SYSTEM_LIBAOM', 'aom >= 1.0.0',
+                                       when='--with-system-av1')
+
+system_libdav1d_info = pkg_check_modules('MOZ_SYSTEM_LIBDAV1D', 'dav1d >= 0.1.1',
+                                         when='--with-system-av1')
+
+@depends(system_libaom_info, system_libdav1d_info)
+def system_av1(system_libaom_info, system_libdav1d_info):
+    has_av1_libs = False
+    if system_libaom_info and system_libdav1d_info:
+        has_av1_libs = True
+    return has_av1_libs
+
+
+@depends(target, when=av1 & depends(system_av1)(lambda v: not v) & compile_environment)
 def dav1d_asm(target):
     if target.cpu in ("aarch64", "x86", "x86_64"):
         return True
 
 
-@depends(target, when=av1 & compile_environment)
+@depends(target, when=av1 & depends(system_av1)(lambda v: not v) & compile_environment)
 def dav1d_nasm(target):
     if target.cpu in ("x86", "x86_64"):
         return namespace(version="2.14", what="AV1")
@@ -576,6 +591,7 @@ set_config("MOZ_DAV1D_ASM", dav1d_asm)
 set_define("MOZ_DAV1D_ASM", dav1d_asm)
 set_config("MOZ_AV1", av1)
 set_define("MOZ_AV1", av1)
+set_config("MOZ_SYSTEM_AV1", depends_if(system_av1)(lambda _: True))
 
 # Built-in fragmented MP4 support.
 # ==============================================================
