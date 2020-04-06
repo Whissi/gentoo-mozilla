@@ -101,6 +101,9 @@ LOCAL_INCLUDES += [
     '/netwerk/protocol/http',
 ]
 
+if CONFIG['MOZ_SYSTEM_HARFBUZZ']:
+    CXXFLAGS += CONFIG['MOZ_HARFBUZZ_CFLAGS']
+
 USE_LIBS += ['icu']
 
 if CONFIG['CC_TYPE'] in ('clang', 'gcc'):
