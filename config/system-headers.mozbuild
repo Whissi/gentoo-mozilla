@@ -1300,6 +1300,14 @@ if CONFIG['MOZ_ENABLE_LIBPROXY']:
         'proxy.h',
     ]
 
+if CONFIG['MOZ_SYSTEM_AV1']:
+    system_headers += [
+        'aom/aom_decoder.h',
+        'aom/aomdx.h',
+        'aom/aom_image.h',
+        'dav1d/dav1d.h',
+    ]
+
 if CONFIG['MOZ_SYSTEM_LIBVPX']:
     system_headers += [
         'vpx_mem/vpx_mem.h',
