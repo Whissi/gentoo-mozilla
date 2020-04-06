@@ -25,6 +25,9 @@ UNIFIED_SOURCES += [
     "nsUnicodeProperties.cpp",
 ]
 
+if CONFIG["MOZ_SYSTEM_HARFBUZZ"]:
+    CXXFLAGS += CONFIG["MOZ_HARFBUZZ_CFLAGS"]
+
 GeneratedFile(
     "BaseChars.h",
     script="base_chars.py",
