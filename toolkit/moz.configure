@@ -475,6 +475,15 @@ add_old_configure_assignment(
     "_HAVE_FREETYPE2", depends_if(freetype2_info)(lambda _: True)
 )
 
+# HarfBuzz
+# ==============================================================
+option('--with-system-harfbuzz', help="Use system harfbuzz (located with pkgconfig)")
+
+system_harfbuzz = pkg_check_modules('MOZ_HARFBUZZ', 'harfbuzz >= 2.7.4',
+                                    when='--with-system-harfbuzz')
+
+set_config('MOZ_SYSTEM_HARFBUZZ', depends_if(system_harfbuzz)(lambda _: True))
+
 # Apple platform decoder support
 # ==============================================================
 @depends(toolkit)
