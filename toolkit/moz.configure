@@ -408,6 +408,20 @@ def freetype2_combined_info(fontconfig_info, freetype2_info):
 add_old_configure_assignment('_HAVE_FREETYPE2',
                              depends_if(freetype2_info)(lambda _: True))
 
+# Graphite2
+# ==============================================================
+option('--with-system-graphite2',
+       help="Use system graphite2 (located with pkgconfig)")
+
+@depends('--with-system-graphite2')
+def check_for_graphite2(value):
+    return bool(value)
+
+system_graphite2 = pkg_check_modules('MOZ_GRAPHITE2', 'graphite2',
+                                     when=check_for_graphite2)
+
+set_config('MOZ_SYSTEM_GRAPHITE2', depends_if(system_graphite2)(lambda _: True))
+
 # HarfBuzz
 # ==============================================================
 option('--with-system-harfbuzz',
