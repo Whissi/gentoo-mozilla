@@ -253,7 +253,16 @@ using mozilla::DebugOnly;
 #endif
 
 #ifdef WASM_EMULATE_ARM_UNALIGNED_FP_ACCESS
-#  include <sys/user.h>
+struct user_vfp {
+  unsigned long long fpregs[32];
+  unsigned long fpscr;
+};
+
+struct user_vfp_exc {
+  unsigned long fpexc;
+  unsigned long fpinst;
+  unsigned long fpinst2;
+};
 #endif
 
 #if defined(ANDROID)
