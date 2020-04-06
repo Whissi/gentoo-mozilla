@@ -70,7 +70,7 @@ set_config('PGO_PROFILE_PATH', pgo_profile_path)
 def pgo_flags(compiler, target, profdata):
     if compiler.type == 'gcc':
         return namespace(
-            gen_cflags=['-fprofile-generate'],
+            gen_cflags=['-fprofile-generate', '-DMOZ_PROFILE_INSTRUMENTATION'],
             gen_ldflags=['-fprofile-generate'],
             use_cflags=['-fprofile-use', '-fprofile-correction',
                         '-Wcoverage-mismatch'],
@@ -91,7 +91,7 @@ def pgo_flags(compiler, target, profdata):
             gen_ldflags = ['-fprofile-generate']
 
         return namespace(
-            gen_cflags=[prefix + '-fprofile-generate'],
+            gen_cflags=[prefix + '-fprofile-generate', '-DMOZ_PROFILE_INSTRUMENTATION'],
             gen_ldflags=gen_ldflags,
             use_cflags=[prefix + '-fprofile-use=%s' % profdata,
                         # Some error messages about mismatched profile data
