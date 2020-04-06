@@ -229,7 +229,6 @@ system_headers = [
     'execinfo.h',
     'extras.h',
     'fcntl.h',
-    'features.h',
     'fenv.h',
     'ffi.h',
     'fibdef.h',
