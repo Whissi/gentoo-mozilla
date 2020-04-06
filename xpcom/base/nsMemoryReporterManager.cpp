@@ -642,6 +642,7 @@ static bool InSharedRegion(mach_vm_address_t aAddr, cpu_type_t aType) {
   return NS_OK;
 }
 
+#ifdef __GLIBC__
 #  define HAVE_SYSTEM_HEAP_REPORTER 1
 // Windows can have multiple separate heaps. During testing there were multiple
 // heaps present but the non-default ones had sizes no more than a few 10s of
@@ -698,6 +699,7 @@ static bool InSharedRegion(mach_vm_address_t aAddr, cpu_type_t aType) {
   *aSizeOut = heapsSize;
   return NS_OK;
 }
+#endif
 
 struct SegmentKind {
   DWORD mState;
