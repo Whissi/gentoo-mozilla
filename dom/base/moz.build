@@ -554,6 +554,9 @@ if CONFIG["MOZ_BUILD_APP"] in ["browser", "mobile/android", "xulrunner"]:
 if CONFIG["MOZ_X11"]:
     CXXFLAGS += CONFIG["TK_CFLAGS"]
 
+if CONFIG["MOZ_SYSTEM_HARFBUZZ"]:
+    CXXFLAGS += CONFIG["MOZ_HARFBUZZ_CFLAGS"]
+
 GeneratedFile(
     "UseCounterList.h",
     script="gen-usecounters.py",
