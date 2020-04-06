@@ -85,7 +85,7 @@ set_config("PGO_PROFILE_PATH", pgo_profile_path)
 def pgo_flags(compiler, profdata, target_is_windows):
     if compiler.type == "gcc":
         return namespace(
-            gen_cflags=["-fprofile-generate"],
+            gen_cflags=["-fprofile-generate", "-DMOZ_PROFILE_INSTRUMENTATION"],
             gen_ldflags=["-fprofile-generate"],
             use_cflags=["-fprofile-use", "-fprofile-correction", "-Wcoverage-mismatch"],
             use_ldflags=["-fprofile-use"],
@@ -99,7 +99,7 @@ def pgo_flags(compiler, profdata, target_is_windows):
         else:
             gen_ldflags = ["-fprofile-generate"]
 
-        gen_cflags = [prefix + "-fprofile-generate"]
+        gen_cflags = [prefix + "-fprofile-generate", "-DMOZ_PROFILE_INSTRUMENTATION"]
         if target_is_windows:
             # native llvm-profdata.exe on Windows can't read profile data
             # if name compression is enabled (which cross-compiling enables
