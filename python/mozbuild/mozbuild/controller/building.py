@@ -586,7 +586,7 @@ class TerminalLoggingHandler(logging.Handler):
             if self.footer:
                 self.footer.clear()
 
-            self.fh.write(msg)
+            self.fh.write(msg.encode("utf-8"))
             self.fh.write('\n')
 
             if self.footer:
