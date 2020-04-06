@@ -103,8 +103,10 @@ void ThisThread::SetName(const char* name) {
   rv = 0;
 #elif defined(__NetBSD__)
   rv = pthread_setname_np(pthread_self(), "%s", (void*)name);
-#else
+#elif defined(__GLIBC__)
   rv = pthread_setname_np(pthread_self(), name);
+#else
+  rv = 0;
 #endif
   MOZ_RELEASE_ASSERT(!rv);
 }
