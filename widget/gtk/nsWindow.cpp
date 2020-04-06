@@ -7925,3 +7925,15 @@ void nsWindow::SetEGLNativeWindowSize(
 
 nsWindow* nsWindow::GetFocusedWindow() { return gFocusWindow; }
 #endif
+
+LayoutDeviceIntRect nsWindow::GetMozContainerSize() {
+  LayoutDeviceIntRect size(0, 0, 0, 0);
+  if (mContainer) {
+    GtkAllocation allocation;
+    gtk_widget_get_allocation(GTK_WIDGET(mContainer), &allocation);
+    int scale = GdkScaleFactor();
+    size.width = allocation.width * scale;
+    size.height = allocation.height * scale;
+  }
+  return size;
+}
