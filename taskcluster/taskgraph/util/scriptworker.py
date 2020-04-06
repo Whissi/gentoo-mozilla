@@ -61,7 +61,6 @@ SIGNING_SCOPE_ALIAS_TO_PROJECT = [[
         'mozilla-esr68',
         'comm-beta',
         'comm-esr60',
-        'comm-esr68',
     ])
 ]]
 
