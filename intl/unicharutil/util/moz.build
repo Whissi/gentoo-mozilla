@@ -25,4 +25,7 @@ UNIFIED_SOURCES += [
     'nsUnicodeProperties.cpp',
 ]
 
+if CONFIG['MOZ_SYSTEM_HARFBUZZ']:
+    CXXFLAGS += CONFIG['MOZ_HARFBUZZ_CFLAGS']
+
 FINAL_LIBRARY = 'xul'
