@@ -545,8 +545,10 @@ static void PlatformInit(PSLockRef aLock) {}
 ucontext_t sSyncUContext;
 
 void Registers::SyncPopulate() {
+#if defined(__GLIBC__)
   if (!getcontext(&sSyncUContext)) {
     PopulateRegsFromContext(*this, &sSyncUContext);
   }
+#endif
 }
 #endif
