@@ -49,6 +49,7 @@
 #  define NS_MACOSX_LOCAL_PLUGIN_DIR "OSXLocalPlugins"
 #elif XP_UNIX
 #  define NS_SYSTEM_PLUGINS_DIR "SysPlugins"
+#  define NS_SYSTEM_NSBROWSER_PLUGINS_DIR "SysNsBrowserPlugins"
 #endif
 
 #define DEFAULTS_DIR_NAME NS_LITERAL_CSTRING("defaults")
@@ -166,6 +167,21 @@ nsAppFileLocationProvider::GetFile(const char* aProp, bool* aPersistent,
         "/usr/local/lib/mozilla/plugins";
 #      else
         "/usr/lib/mozilla/plugins";
+#      endif
+    rv = NS_NewNativeLocalFile(nsDependentCString(sysLPlgDir), false,
+                               getter_AddRefs(localFile));
+#    else
+    rv = NS_ERROR_FAILURE;
+#    endif
+  } else if (nsCRT::strcmp(aProp, NS_SYSTEM_NSBROWSER_PLUGINS_DIR) == 0) {
+#    ifdef ENABLE_SYSTEM_EXTENSION_DIRS
+    static const char* const sysLPlgDir =
+#      if defined(HAVE_USR_LIB64_DIR) && defined(__LP64__)
+        "/usr/lib64/nsbrowser/plugins";
+#      elif defined(__OpenBSD__) || defined(__FreeBSD__)
+        "/usr/local/lib/nsbrowser/plugins";
+#      else
+        "/usr/lib/nsbrowser/plugins";
 #      endif
     rv = NS_NewNativeLocalFile(nsDependentCString(sysLPlgDir), false,
                                getter_AddRefs(localFile));
@@ -417,7 +433,7 @@ nsAppFileLocationProvider::GetFiles(const char* aProp,
 #else
 #  ifdef XP_UNIX
     static const char* keys[] = {NS_USER_PLUGINS_DIR, NS_SYSTEM_PLUGINS_DIR,
-                                 nullptr};
+                                 NS_SYSTEM_NSBROWSER_PLUGINS_DIR, nullptr};
 #  else
     static const char* keys[] = {NS_USER_PLUGINS_DIR, nullptr};
 #  endif
