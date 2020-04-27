@@ -530,7 +530,6 @@ static void data_device_enter(void* data, struct wl_data_device* data_device,
   }
 
   LOGDRAG(("nsWindow data_device_enter for GtkWidget %p\n", (void*)gtkWidget));
-
   dragContext->DropDataEnter(gtkWidget, time, wl_fixed_to_int(x_fixed),
                              wl_fixed_to_int(y_fixed));
 }
@@ -542,6 +541,8 @@ static void data_device_leave(void* data, struct wl_data_device* data_device) {
   nsWaylandDragContext* dropContext = context->GetDragContext();
   WindowDragLeaveHandler(dropContext->GetWidget());
 
+  LOGDRAG(("nsWindow data_device_leave for GtkWidget %p\n",
+           (void*)dropContext->GetWidget()));
   context->ClearDragAndDropDataOffer();
 }
 
@@ -557,6 +558,8 @@ static void data_device_motion(void* data, struct wl_data_device* data_device,
   nscoord y = wl_fixed_to_int(y_fixed);
   dropContext->DropMotion(time, x, y);
 
+  LOGDRAG(("nsWindow data_device_motion for GtkWidget %p\n",
+           (void*)dropContext->GetWidget()));
   WindowDragMotionHandler(dropContext->GetWidget(), nullptr, dropContext, x, y,
                           time);
 }
@@ -570,6 +573,8 @@ static void data_device_drop(void* data, struct wl_data_device* data_device) {
   nscoord x, y;
   dropContext->GetLastDropInfo(&time, &x, &y);
 
+  LOGDRAG(("nsWindow data_device_drop GtkWidget %p\n",
+           (void*)dropContext->GetWidget()));
   WindowDragDropHandler(dropContext->GetWidget(), nullptr, dropContext, x, y,
                         time);
 }
