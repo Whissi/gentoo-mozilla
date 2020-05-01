@@ -1296,6 +1296,8 @@ class ContentSandboxPolicy : public SandboxPolicyCommon {
         // usually do something reasonable on error.
       case __NR_clone:
         return ClonePolicy(Error(EPERM));
+      case __NR_fork:
+        return Error(ENOSYS);
 
 #  ifdef __NR_fadvise64
       case __NR_fadvise64:
