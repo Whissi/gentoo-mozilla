@@ -174,6 +174,29 @@ if CONFIG["OS_TARGET"] == "Linux":
         "/media/webrtc/trunk/webrtc/modules/desktop_capture/window_capturer_linux.cc"
     ]
 
+# PipeWire specific files
+if CONFIG['MOZ_PIPEWIRE'] and CONFIG["OS_TARGET"] == "Linux":
+
+    DEFINES["WEBRTC_USE_PIPEWIRE"] = "1"
+
+    OS_LIBS += [
+        "rt",
+        "pipewire-0.3",
+        "glib-2.0",
+        "gio-2.0",
+        "gobject-2.0"
+    ]
+
+    CXXFLAGS += CONFIG['TK_CFLAGS']
+    CXXFLAGS += [ "-I/usr/include/pipewire-0.3" ]
+    CXXFLAGS += [ "-I/usr/include/spa-0.2" ]
+
+    UNIFIED_SOURCES += [
+        "/media/webrtc/trunk/webrtc/modules/desktop_capture/linux/base_capturer_pipewire.cc",
+        "/media/webrtc/trunk/webrtc/modules/desktop_capture/linux/screen_capturer_pipewire.cc",
+        "/media/webrtc/trunk/webrtc/modules/desktop_capture/linux/window_capturer_pipewire.cc"
+    ]
+
 if CONFIG["OS_TARGET"] == "Darwin":
 
     DEFINES["CR_XCODE_VERSION"] = "0920"
