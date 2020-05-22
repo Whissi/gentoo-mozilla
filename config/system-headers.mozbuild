@@ -1351,6 +1351,12 @@ if CONFIG['MOZ_SYSTEM_ICU']:
         'unicode/utypes.h',
     ]
 
+if CONFIG['MOZ_PIPEWIRE']:
+    system_headers += [
+        'gio/gunixfdlist.h',
+        'pipewire/pipewire.h',
+    ]
+
 if CONFIG['MOZ_WAYLAND']:
     system_headers += [
         'xkbcommon/xkbcommon.h',
