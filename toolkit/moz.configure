@@ -781,6 +781,18 @@ def app_system_headers(value):
 set_config('MOZ_APP_SYSTEM_HEADERS', app_system_headers)
 set_define('MOZ_APP_SYSTEM_HEADERS', app_system_headers)
 
+
+# PipeWire
+# ==============================================================
+option('--enable-pipewire', env='MOZ_PIPEWIRE',
+       help='Enable pipewire support.')
+
+pipewire = pkg_check_modules('MOZ_PIPEWIRE', 'libpipewire-0.3', when='--enable-pipewire')
+
+set_config('MOZ_PIPEWIRE', depends_if(pipewire)(lambda _: True))
+set_define('MOZ_PIPEWIRE', depends_if(pipewire)(lambda _: True))
+
+
 # Printing
 # ==============================================================
 option('--disable-printing', help='Disable printing support')
