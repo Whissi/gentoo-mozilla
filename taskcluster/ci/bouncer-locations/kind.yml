@@ -35,7 +35,7 @@ job-defaults:
     treeherder:
         symbol: BncLoc
         kind: other
-        tier: 2
+        tier: 1
 
 jobs:
     firefox:
@@ -49,6 +49,8 @@ jobs:
             - firefox-nightly-latest-l10n-ssl
             - firefox-nightly-msi-latest-ssl
             - firefox-nightly-msi-latest-l10n-ssl
+            - firefox-nightly-pkg-latest-ssl
+            - firefox-nightly-pkg-latest-l10n-ssl
         treeherder:
             platform: firefox-release/opt
     fennec:

@@ -1,2 +1,2 @@
-20200429190206
-https://hg.mozilla.org/releases/mozilla-esr68/rev/416007f3bb6c5a70edb59449e5c8fa4e25b318a9
+20200527211442
+https://hg.mozilla.org/releases/mozilla-esr68/rev/e17129d84f13cc84f3a09d23bcbb005194573e23
