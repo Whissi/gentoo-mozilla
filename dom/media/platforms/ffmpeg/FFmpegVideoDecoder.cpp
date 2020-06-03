@@ -190,6 +190,7 @@ bool FFmpegVideoDecoder<LIBAV_VER>::CreateVAAPIDeviceContext() {
   wl_display* display = widget::WaylandDisplayGetWLDisplay();
   if (!display) {
     FFMPEG_LOG("Can't get default wayland display.");
+    mLib->av_buffer_unref(&mVAAPIDeviceContext);
     return false;
   }
   mDisplay = mLib->vaGetDisplayWl(display);
@@ -200,12 +201,14 @@ bool FFmpegVideoDecoder<LIBAV_VER>::CreateVAAPIDeviceContext() {
   int major, minor;
   int status = mLib->vaInitialize(mDisplay, &major, &minor);
   if (status != VA_STATUS_SUCCESS) {
+    mLib->av_buffer_unref(&mVAAPIDeviceContext);
     return false;
   }
 
   vactx->display = mDisplay;
 
   if (mLib->av_hwdevice_ctx_init(mVAAPIDeviceContext) < 0) {
+    mLib->av_buffer_unref(&mVAAPIDeviceContext);
     return false;
   }
 
