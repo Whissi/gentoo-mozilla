@@ -44,7 +44,7 @@ typedef int VAStatus;
 #endif
 
 // Use some extra HW frames for potential rendering lags.
-#define EXTRA_HW_FRAMES 6
+#define EXTRA_HW_FRAMES 20
 
 typedef mozilla::layers::Image Image;
 typedef mozilla::layers::PlanarYCbCrImage PlanarYCbCrImage;
