@@ -26,6 +26,7 @@
 #include "mozilla/SyncRunnable.h"
 #include "mozilla/TaskQueue.h"
 #include "mozilla/gfx/gfxVars.h"
+#include "gfxPlatformGtk.h"
 
 #ifdef XP_WIN
 #  include "WMFDecoderModule.h"
@@ -367,7 +368,12 @@ void PDMFactory::CreatePDMs() {
   }
 #endif
 #ifdef MOZ_FFVPX
+#ifdef MOZ_WAYLAND
+  if (StaticPrefs::media_ffvpx_enabled() &&
+      !gfxPlatformGtk::GetPlatform()->UseWaylandHardwareVideoDecoding()) {
+#else
   if (StaticPrefs::media_ffvpx_enabled()) {
+#endif
     m = FFVPXRuntimeLinker::CreateDecoderModule();
     StartupPDM(m);
   }
