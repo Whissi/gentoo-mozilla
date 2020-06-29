@@ -1,0 +1,2 @@
+20200625154640
+https://hg.mozilla.org/releases/mozilla-esr78/rev/aa66bbde9d725da442a9d4e3e721fc40e9106f30
