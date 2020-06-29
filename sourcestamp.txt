@@ -1,0 +1,2 @@
+20200625152958
+https://hg.mozilla.org/releases/mozilla-release/rev/52486654c09a5248ae83230ee380b1dbb7ad2ef4
