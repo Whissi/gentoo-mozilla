@@ -11,7 +11,7 @@ import glob
 import subprocess
 
 import mozcrash
-from mozbuild.base import MozbuildObject, BinaryNotFoundException
+from mozbuild.base import MozbuildObject, BinaryNotFoundException, BuildEnvironmentNotFoundException
 from mozfile import TemporaryDirectory
 from mozhttpd import MozHttpd
 from mozprofile import FirefoxProfile, Preferences
@@ -84,9 +84,22 @@ if __name__ == '__main__':
                        port=PORT,
                        options='primary,privileged')
 
-    old_profraw_files = glob.glob('*.profraw')
-    for f in old_profraw_files:
-        os.remove(f)
+    using_gcc = False
+    try:
+        if build.config_environment.substs.get('CC_TYPE') == 'gcc':
+            using_gcc = True
+    except BuildEnvironmentNotFoundException:
+        pass
+
+    if using_gcc:
+        for dirpath, _, filenames in os.walk('.'):
+            for f in filenames:
+                if f.endswith('.gcda'):
+                    os.remove(os.path.join(dirpath, f))
+    else:
+        old_profraw_files = glob.glob('*.profraw')
+        for f in old_profraw_files:
+            os.remove(f)
 
     with TemporaryDirectory() as profilePath:
         # TODO: refactor this into mozprofile
@@ -190,6 +203,10 @@ if __name__ == '__main__':
         if get_crashreports(profilePath, name='Firefox exited successfully?') != 0:
             print("Firefox exited successfully, but produced a crashreport")
             sys.exit(1)
+
+        print('Copying profile data....')
+        os.system('pwd');
+        os.system('tar cf profdata.tar.gz `find . -name "*.gcda"`; cd ..; tar xf instrumented/profdata.tar.gz;');
 
         llvm_profdata = env.get('LLVM_PROFDATA')
         if llvm_profdata:
