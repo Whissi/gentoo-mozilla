@@ -222,11 +222,13 @@ static int WaylandAllocateShmMemory(int aSize) {
   do {
     ret = posix_fallocate(fd, 0, aSize);
   } while (ret == EINTR);
-  if (ret != 0) {
+  if (ret == 0) {
+    return fd;
+  } else if (ret != EINVAL && ret != EOPNOTSUPP) {
     close(fd);
     MOZ_CRASH("posix_fallocate() fails to allocate shm memory");
   }
-#else
+#endif
   do {
     ret = ftruncate(fd, aSize);
   } while (ret < 0 && errno == EINTR);
@@ -234,7 +236,6 @@ static int WaylandAllocateShmMemory(int aSize) {
     close(fd);
     MOZ_CRASH("ftruncate() fails to allocate shm memory");
   }
-#endif
 
   return fd;
 }
@@ -265,7 +266,7 @@ bool WaylandShmPool::Resize(int aSize) {
   do {
     errno = posix_fallocate(mShmPoolFd, 0, aSize);
   } while (errno == EINTR);
-  if (errno != 0) return false;
+  if (errno != EINVAL && errno != EOPNOTSUPP) return false;
 #endif
 
   wl_shm_pool_resize(mShmPool, aSize);
