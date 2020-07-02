@@ -8,6 +8,7 @@
 
 from __future__ import absolute_import, print_function, unicode_literals
 
+import buildconfig
 import subprocess
 import sys
 import re
@@ -46,7 +47,7 @@ def get_range_length(range, debug_ranges):
 
 
 def main(bin, compilation_unit):
-    p = subprocess.Popen(['objdump', '-W', bin], stdout=subprocess.PIPE,
+    p = subprocess.Popen([buildconfig.substs.get('TOOLCHAIN_PREFIX', '') + 'objdump', '-W', bin], stdout=subprocess.PIPE,
                          stderr=subprocess.PIPE, universal_newlines=True)
     (out, err) = p.communicate()
     sections = re.split('\n(Contents of the|The section) ', out)
