@@ -102,6 +102,7 @@ gfxPlatformGtk::gfxPlatformGtk() {
     mCompositorDisplay = nullptr;
   }
 #endif  // MOZ_X11
+
   gPlatformFTLibrary = Factory::NewFTLibrary();
   MOZ_ASSERT(gPlatformFTLibrary);
   Factory::SetFTLibrary(gPlatformFTLibrary);
@@ -116,6 +117,11 @@ gfxPlatformGtk::~gfxPlatformGtk() {
 
   Factory::ReleaseFTLibrary(gPlatformFTLibrary);
   gPlatformFTLibrary = nullptr;
+
+#ifdef MOZ_WAYLAND
+  mUseWebGLDmabufBackend =
+      IsWaylandDisplay() && nsWaylandDisplay::IsDMABufWebGLEnabled();
+#endif
 }
 
 void gfxPlatformGtk::FlushContentDrawing() {
@@ -724,9 +730,6 @@ already_AddRefed<gfx::VsyncSource> gfxPlatformGtk::CreateHardwareVsyncSource() {
 #ifdef MOZ_WAYLAND
 bool gfxPlatformGtk::UseWaylandDMABufTextures() {
   return IsWaylandDisplay() && nsWaylandDisplay::IsDMABufTexturesEnabled();
-}
-bool gfxPlatformGtk::UseWaylandDMABufWebGL() {
-  return IsWaylandDisplay() && nsWaylandDisplay::IsDMABufWebGLEnabled();
 }
 bool gfxPlatformGtk::UseWaylandHardwareVideoDecoding() {
   return IsWaylandDisplay() && nsWaylandDisplay::IsDMABufVAAPIEnabled() &&
