@@ -71,6 +71,11 @@ class SurfaceFactory_DMABUF : public SurfaceFactory {
     bool hasAlpha = mReadCaps.alpha;
     return SharedSurface_DMABUF::Create(mGL, mFormats, size, hasAlpha);
   }
+
+  bool CanCreateSurface() {
+    UniquePtr<SharedSurface> test = CreateShared(gfx::IntSize(1, 1));
+    return test != nullptr;
+  }
 };
 
 }  // namespace gl
