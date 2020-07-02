@@ -109,7 +109,8 @@ class Build(MachCommandBase):
                 return status
 
             pgo_env = os.environ.copy()
-            pgo_env['LLVM_PROFDATA'] = instr.config_environment.substs.get('LLVM_PROFDATA')
+            if instr.config_environment.substs.get('CC_TYPE') != 'gcc':
+                pgo_env['LLVM_PROFDATA'] = instr.config_environment.substs.get('LLVM_PROFDATA')
             pgo_env['JARLOG_FILE'] = mozpath.join(orig_topobjdir, 'jarlog/en-US.log')
             pgo_cmd = [
                 instr.virtualenv_manager.python_path,
