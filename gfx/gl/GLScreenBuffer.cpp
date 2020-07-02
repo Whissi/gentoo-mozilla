@@ -88,10 +88,14 @@ UniquePtr<SurfaceFactory> GLScreenBuffer::CreateFactory(
 #if defined(XP_MACOSX)
     factory = SurfaceFactory_IOSurface::Create(gl, caps, ipcChannel, flags);
 #elif defined(MOZ_WAYLAND)
-    if (gl->GetContextType() == GLContextType::EGL) {
-      if (gfxPlatformGtk::GetPlatform()->UseWaylandDMABufWebGL()) {
-        factory =
-            MakeUnique<SurfaceFactory_DMABUF>(gl, caps, ipcChannel, flags);
+    if (gl->GetContextType() == GLContextType::EGL &&
+        gfxPlatformGtk::GetPlatform()->UseWaylandDMABufWebGL()) {
+      auto DMABUFFactory =
+          MakeUnique<SurfaceFactory_DMABUF>(gl, caps, ipcChannel, flags);
+      if (DMABUFFactory && DMABUFFactory->CanCreateSurface()) {
+        factory = std::move(DMABUFFactory);
+      } else {
+        gfxPlatformGtk::GetPlatform()->DisableWaylandDMABufWebGL();
       }
     }
 #elif defined(MOZ_X11)
