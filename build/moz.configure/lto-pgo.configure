@@ -84,11 +84,12 @@ set_config("PGO_PROFILE_PATH", pgo_profile_path)
 @imports(_from="__builtin__", _import="min")
 def pgo_flags(compiler, profdata, target_is_windows):
     if compiler.type == "gcc":
+        profile_use = "-fprofile-use"
         return namespace(
             gen_cflags=["-fprofile-generate", "-DMOZ_PROFILE_INSTRUMENTATION"],
             gen_ldflags=["-fprofile-generate"],
-            use_cflags=["-fprofile-use", "-fprofile-correction", "-Wcoverage-mismatch"],
-            use_ldflags=["-fprofile-use"],
+            use_cflags=[profile_use, "-fprofile-correction", "-Wcoverage-mismatch"],
+            use_ldflags=[profile_use],
         )
 
     if compiler.type in ("clang-cl", "clang"):
