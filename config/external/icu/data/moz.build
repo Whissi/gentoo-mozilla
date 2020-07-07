@@ -10,8 +10,23 @@ Library('icudata')
 
 LOCAL_INCLUDES += ['.']
 
-DEFINES['ICU_DATA_FILE'] = '"icudt%sl.dat"' % CONFIG['MOZ_ICU_VERSION']
+data_file = {
+    'little': 'icudt%sl.dat' % CONFIG['MOZ_ICU_VERSION'],
+    'big': 'icudt%sb.dat' % CONFIG['MOZ_ICU_VERSION'],
+}
+DEFINES['ICU_DATA_FILE'] = '"%s"' % data_file[CONFIG['TARGET_ENDIANNESS']]
 DEFINES['ICU_DATA_SYMBOL'] = 'icudt%s_dat' % CONFIG['MOZ_ICU_VERSION']
 SOURCES += [
     'icudata.c',
 ]
+
+if CONFIG['TARGET_ENDIANNESS'] == 'big':
+    HostLibrary('host_icudata')
+    HOST_DEFINES['ICU_DATA_FILE'] = '"%s"' % data_file['little']
+    HOST_DEFINES['ICU_DATA_SYMBOL'] = DEFINES['ICU_DATA_SYMBOL']
+    HOST_SOURCES += [
+        'icudata.c',
+    ]
+    GeneratedFile(data_file['big'],
+                  script='convert_icudata.py',
+                  inputs=[data_file['little']])
