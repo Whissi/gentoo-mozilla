@@ -184,6 +184,12 @@ toolkit/components/telemetry/export: layout/style/export
 # currently have a good way of expressing this dependency.
 toolkit/components/updateagent/target: toolkit/mozapps/update/common/target
 
+ifeq ($(TARGET_ENDIANNESS),big)
+config/external/icu/data/target-objects: config/external/icu/data/icudt$(MOZ_ICU_VERSION)b.dat
+config/external/icu/data/icudt$(MOZ_ICU_VERSION)b.dat: config/external/icu/icupkg/host
+	$(MAKE) -C $(@D) $(@F)
+endif
+
 ifdef ENABLE_CLANG_PLUGIN
 # Only target rules use the clang plugin.
 $(filter %/target %/target-objects,$(filter-out config/export config/host build/unix/stdc++compat/% build/clang-plugin/%,$(compile_targets))): build/clang-plugin/host build/clang-plugin/tests/target-objects
