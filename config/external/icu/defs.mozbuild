@@ -24,6 +24,8 @@ DEFINES['U_CHARSET_IS_UTF8'] = True
 DEFINES['UNISTR_FROM_CHAR_EXPLICIT'] = "explicit"
 DEFINES['UNISTR_FROM_STRING_EXPLICIT'] = "explicit"
 
+DEFINES['U_ENABLE_DYLOAD'] = 0
+
 if not CONFIG['HAVE_LANGINFO_CODESET']:
     DEFINES['U_HAVE_NL_LANGINFO_CODESET'] = 0
 
@@ -53,3 +55,7 @@ if CONFIG['CC_TYPE'] == 'clang-cl':
         '-Wno-macro-redefined',
         '-Wno-microsoft-include',
     ]
+
+for k, v in DEFINES.items():
+    if k != 'UCONFIG_NO_LEGACY_CONVERSION':
+        HOST_DEFINES[k] = v
