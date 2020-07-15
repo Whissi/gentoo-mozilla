@@ -1457,9 +1457,9 @@ class RecursiveMakeBackend(MakeBackend):
                                 raise Exception("Wildcards are only supported in the filename part"
                                                 " of srcdir-relative or absolute paths.")
 
-                            install_manifest.add_pattern_link(basepath, wild, path)
+                            install_manifest.add_pattern_copy(basepath, wild, path)
                         else:
-                            install_manifest.add_pattern_link(f.srcdir, f, path)
+                            install_manifest.add_pattern_copy(f.srcdir, f, path)
                     elif isinstance(f, AbsolutePath):
                         if not f.full_path.lower().endswith(('.dll', '.pdb', '.so')):
                             raise Exception("Absolute paths installed to FINAL_TARGET_FILES must"
@@ -1468,7 +1468,7 @@ class RecursiveMakeBackend(MakeBackend):
                         install_manifest.add_optional_exists(dest)
                         absolute_files.append(f.full_path)
                     else:
-                        install_manifest.add_link(f.full_path, dest)
+                        install_manifest.add_copy(f.full_path, dest)
                 else:
                     install_manifest.add_optional_exists(dest)
                     objdir_files.append(self._pretty_path(f, backend_file))
