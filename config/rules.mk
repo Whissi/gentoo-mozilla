@@ -320,6 +320,8 @@ ifeq ($(OS_ARCH),GNU)
 OS_CPPFLAGS += -DPATH_MAX=1024 -DMAXPATHLEN=1024
 endif
 
+EXTRA_DSO_LDOPTS += -Wl,-soname,lib$(JS_LIBRARY_NAME).so.0
+
 #
 # MINGW32
 #
