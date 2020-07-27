@@ -1,0 +1,13 @@
+{
+  "compilerOptions": {
+    "allowJs": true,
+    "checkJs": true,
+    "outDir": "./lib",
+    "target": "ESNext",
+    "moduleResolution": "node",
+    "module": "CommonJS"
+  },
+  "include": [
+    "src"
+  ]
+}
