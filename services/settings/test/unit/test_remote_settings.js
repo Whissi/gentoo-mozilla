@@ -257,6 +257,32 @@ add_task(async function test_get_does_not_load_dump_when_pref_is_false() {
 });
 add_task(clear_state);
 
+add_task(async function test_get_falls_back_to_dump_if_db_fails() {
+  if (IS_ANDROID) {
+    // Skip test: we don't ship remote settings dumps on Android (see package-manifest).
+    return;
+  }
+  const backup = clientWithDump.db.getLastModified;
+  clientWithDump.db.getLastModified = () => {
+    throw new Error("Unknown error");
+  };
+
+  const records = await clientWithDump.get();
+  ok(records.length > 0, "dump content is returned");
+
+  // If fallback is disabled, error is thrown.
+  let error;
+  try {
+    await clientWithDump.get({ dumpFallback: false });
+  } catch (e) {
+    error = e;
+  }
+  equal(error.message, "Unknown error");
+
+  clientWithDump.db.getLastModified = backup;
+});
+add_task(clear_state);
+
 add_task(async function test_get_does_not_sync_if_empty_dump_is_provided() {
   if (IS_ANDROID) {
     // Skip test: we don't ship remote settings dumps on Android (see package-manifest).
@@ -326,6 +352,7 @@ add_task(async function test_get_can_verify_signature_pulled() {
       return true;
     },
   };
+  client.verifySignature = true;
 
   // No metadata in local DB, but gets pulled and then verifies.
   ok(ObjectUtils.isEmpty(await client.db.getMetadata()), "Metadata is empty");
@@ -802,6 +829,24 @@ add_task(async function test_bucketname_changes_when_bucket_pref_changes() {
 
   equal(client.bucketName, "main-preview");
 });
+add_task(clear_state);
+
+add_task(
+  async function test_get_loads_default_records_from_a_local_dump_if_preview_collection() {
+    if (IS_ANDROID) {
+      // Skip test: we don't ship remote settings dumps on Android (see package-manifest).
+      return;
+    }
+    Services.prefs.setCharPref(
+      "services.settings.default_bucket",
+      "main-preview"
+    );
+    // When collection has a dump in services/settings/dumps/{bucket}/{collection}.json
+    const data = await clientWithDump.get();
+    notEqual(data.length, 0);
+    // No synchronization happened (responses are not mocked).
+  }
+);
 add_task(clear_state);
 
 add_task(

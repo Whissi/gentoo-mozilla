@@ -1087,11 +1087,6 @@
   value: "#551A8B"
   mirror: never
 
-- name: browser.find.anonymous_content.enabled
-  type: bool
-  value: true
-  mirror: always
-
 #---------------------------------------------------------------------------
 # Prefs starting with "canvas."
 #---------------------------------------------------------------------------
@@ -2306,6 +2301,13 @@
     value: true
     mirror: always
     do_not_use_directly: true
+
+  # Preference that is used to enable the hack for overrriding xFullPathname in
+  # TelemetryVFS.
+-   name: dom.quotaManager.overrideXFullPathname
+    type: RelaxedAtomicBool
+    value: true
+    mirror: always
 #endif
 
 # Reporting API.
@@ -8109,6 +8111,12 @@
 - name: print.font-variations-as-paths
   type: RelaxedAtomicBool
   value: true
+  mirror: always
+
+# Whether we always print silently (without a print dialog).
+- name: print.always_print_silent
+  type: RelaxedAtomicBool
+  value: false
   mirror: always
 
 #---------------------------------------------------------------------------

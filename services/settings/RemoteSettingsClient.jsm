@@ -21,6 +21,7 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   ObjectUtils: "resource://gre/modules/ObjectUtils.jsm",
   PerformanceCounters: "resource://gre/modules/PerformanceCounters.jsm",
   RemoteSettingsWorker: "resource://services-settings/RemoteSettingsWorker.jsm",
+  SharedUtils: "resource://services-settings/SharedUtils.jsm",
   UptakeTelemetry: "resource://services-common/uptake-telemetry.js",
   Utils: "resource://services-settings/Utils.jsm",
 });
@@ -264,7 +265,11 @@ class RemoteSettingsClient extends EventEmitter {
     XPCOMUtils.defineLazyPreferenceGetter(
       this,
       "bucketName",
-      this.bucketNamePref
+      this.bucketNamePref,
+      null,
+      () => {
+        this.db.identifier = this.identifier;
+      }
     );
 
     XPCOMUtils.defineLazyGetter(
@@ -325,6 +330,7 @@ class RemoteSettingsClient extends EventEmitter {
    * @param  {Object} options                  The options object.
    * @param  {Object} options.filters          Filter the results (default: `{}`).
    * @param  {String} options.order            The order to apply (eg. `"-last_modified"`).
+   * @param  {boolean} options.dumpFallback    Fallback to dump data if read of local DB fails (default: `true`).
    * @param  {boolean} options.syncIfEmpty     Synchronize from server if local data is empty (default: `true`).
    * @param  {boolean} options.verifySignature Verify the signature of the local data (default: `false`).
    * @return {Promise}
@@ -333,23 +339,50 @@ class RemoteSettingsClient extends EventEmitter {
     const {
       filters = {},
       order = "", // not sorted by default.
+      dumpFallback = true,
       syncIfEmpty = true,
     } = options;
     let { verifySignature = false } = options;
 
-    if (syncIfEmpty && !(await Utils.hasLocalData(this))) {
+    let hasLocalData;
+    try {
+      hasLocalData = await Utils.hasLocalData(this);
+    } catch (e) {
+      // If the local DB cannot be read (for unknown reasons, Bug 1649393)
+      // We fallback to the packaged data, and filter/sort in memory.
+      if (!dumpFallback) {
+        throw e;
+      }
+      Cu.reportError(e);
+      let { data } = await SharedUtils.loadJSONDump(
+        this.bucketName,
+        this.collectionName
+      );
+      if (data !== null) {
+        console.info(`${this.identifier} falling back to JSON dump`);
+      } else {
+        console.info(`${this.identifier} no dump fallback, return empty list`);
+        data = [];
+      }
+      if (!ObjectUtils.isEmpty(filters)) {
+        data = data.filter(r => Utils.filterObject(filters, r));
+      }
+      if (order) {
+        data = Utils.sortObjects(order, data);
+      }
+      // No need to verify signature on JSON dumps.
+      // If local DB cannot be read, then we don't even try to do anything,
+      // we return results early.
+      return this._filterEntries(data);
+    }
+
+    if (syncIfEmpty && !hasLocalData) {
       try {
         // .get() was called before we had the chance to synchronize the local database.
         // We'll try to avoid returning an empty list.
-        if (
-          gLoadDump &&
-          (await Utils.hasLocalDump(this.bucketName, this.collectionName))
-        ) {
-          // Since there is a JSON dump, load it as default data.
-          console.debug(`${this.identifier} Local DB is empty, load JSON dump`);
-          await this._importJSONDump();
-        } else {
-          // There is no JSON dump, force a synchronization from the server.
+        const importedFromDump = gLoadDump ? await this._importJSONDump() : -1;
+        if (importedFromDump < 0) {
+          // There is no JSON dump to load, force a synchronization from the server.
           console.debug(
             `${this.identifier} Local DB is empty, pull data from server`
           );
@@ -720,10 +753,15 @@ class RemoteSettingsClient extends EventEmitter {
    * Import the JSON files from services/settings/dump into the local DB.
    */
   async _importJSONDump() {
+    console.info(`${this.identifier} try to restore dump`);
+
     const start = Cu.now() * 1000;
     const result = await RemoteSettingsWorker.importJSONDump(
       this.bucketName,
       this.collectionName
+    );
+    console.info(
+      `${this.identifier} imported ${result} records from JSON dump`
     );
     if (gTimingEnabled) {
       const end = Cu.now() * 1000;
@@ -926,11 +964,8 @@ class RemoteSettingsClient extends EventEmitter {
             await this.db.importBulk(localRecords);
             await this.db.saveLastModified(localTimestamp);
             await this.db.saveMetadata(localMetadata);
-          } else if (
-            // So restore the dump if available.
-            await Utils.hasLocalDump(this.bucketName, this.collectionName)
-          ) {
-            console.info(`${this.identifier} restore dump`);
+          } else {
+            // So restore the dump if available  (no-op if no dump)
             await this._importJSONDump();
           }
         }

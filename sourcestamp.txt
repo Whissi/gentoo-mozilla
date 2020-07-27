@@ -1,2 +1,2 @@
-20200708170510
-https://hg.mozilla.org/releases/mozilla-esr78/rev/6e1145ecb9914c071b0066b3422ff33464196190
+20200722151235
+https://hg.mozilla.org/releases/mozilla-esr78/rev/fc56efe4d94deab2c7d3ee49f116e98d0bc827f6
