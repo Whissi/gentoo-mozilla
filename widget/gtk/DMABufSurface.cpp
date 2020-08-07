@@ -744,7 +744,8 @@ bool DMABufSurfaceYUV::UpdateYUVData(const VADRMPRIMESurfaceDescriptor& aDesc) {
     return false;
   }
   if (mDmabufFds[0] >= 0) {
-    ReleaseSurface();
+    NS_WARNING("DMABufSurfaceYUV is already created!");
+    return false;
   }
 
   mSurfaceFormat = gfx::SurfaceFormat::NV12;
