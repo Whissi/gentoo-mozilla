@@ -126,6 +126,7 @@ EXPORTS.js += [
     '../public/Array.h',
     '../public/ArrayBuffer.h',
     '../public/ArrayBufferMaybeShared.h',
+    '../public/BigInt.h',
     '../public/BinASTFormat.h',
     '../public/BuildId.h',
     '../public/CallArgs.h',
@@ -210,6 +211,7 @@ EXPORTS.js += [
 ]
 
 EXPORTS.js.experimental += [
+    '../public/experimental/CodeCoverage.h',
     '../public/experimental/SourceHook.h',
 ]
 

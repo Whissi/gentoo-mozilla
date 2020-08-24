@@ -1753,9 +1753,10 @@
 # <img loading="lazy">
 #
 # See https://github.com/whatwg/html/pull/3752
+# Disabled due to bug 1648064.
 - name: dom.image-lazy-loading.enabled
   type: RelaxedAtomicBool
-  value: true
+  value: false
   mirror: always
 
 # The root margin for image lazy loading, defined as four (value, percentage)
@@ -8598,6 +8599,12 @@
 - name: security.view-source.reachable-from-inner-protocol
   type: bool
   value: false
+  mirror: always
+
+# Pref to show warning when submitting from secure to insecure.
+- name: security.warn_submit_secure_to_insecure
+  type: bool
+  value: true
   mirror: always
 
 # Hardware Origin-bound Second Factor Support
