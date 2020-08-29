@@ -64,6 +64,7 @@ endif
 # These flags are passed via `cargo rustc` and only apply to the final rustc
 # invocation (i.e., only the top-level crate, not its dependencies).
 cargo_rustc_flags = $(CARGO_RUSTCFLAGS)
+ifdef MOZ_LTO
 ifndef DEVELOPER_OPTIONS
 ifndef MOZ_DEBUG_RUST
 # Enable link-time optimization for release builds, but not when linking
@@ -74,6 +75,7 @@ cargo_rustc_flags += -Clto
 endif
 # We need -Cembed-bitcode=yes for all crates when using -Clto.
 RUSTFLAGS += -Cembed-bitcode=yes
+endif
 endif
 endif
 endif
