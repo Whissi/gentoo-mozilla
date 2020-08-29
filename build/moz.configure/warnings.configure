@@ -216,7 +216,8 @@ with only_when(depends(target)(lambda t: t.kernel == 'WINNT')):
 check_and_add_gcc_warning('-Wno-gnu-zero-variadic-macro-arguments')
 
 # Make it an error to be missing function declarations.
-check_and_add_gcc_warning('-Werror=implicit-function-declaration')
+check_and_add_gcc_warning('-Werror=implicit-function-declaration',
+                         when='--enable-warnings-as-errors')
 
 # Disable a warning with gcc 7. See bug 1320656
 # We are far from using C++17 and the impact of the warning will be
