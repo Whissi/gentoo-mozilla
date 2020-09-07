@@ -53,7 +53,7 @@ check:: check-js-msg
 
 check-jstests:
 	$(wildcard $(RUN_TEST_PROGRAM)) $(PYTHON3) -u $(srcdir)/tests/jstests.py \
-		--no-progress --format=automation --timeout 300 \
+		--no-progress --format=automation --timeout 600 \
 		$(JSTESTS_EXTRA_ARGS) \
 		$(DIST)/bin/$(JS_SHELL_NAME)$(BIN_SUFFIX)
 
