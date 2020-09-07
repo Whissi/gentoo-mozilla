@@ -490,8 +490,8 @@ class ConfigureSandbox(dict):
             msg = 'Unknown option: %s' % without_value
             if self._help:
                 self._logger.warning(msg)
-            else:
-                raise InvalidOptionError(msg)
+            #else:
+            #    raise InvalidOptionError(msg)
 
         # Run the execution queue
         for func, args in self._execution_queue:
