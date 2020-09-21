@@ -1,0 +1,73 @@
+/* -*- Mode: C++; c-basic-offset: 2; indent-tabs-mode: nil; tab-width: 2; -*- */
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+#ifndef nsPrinterCUPS_h___
+#define nsPrinterCUPS_h___
+
+#include "nsPrinterBase.h"
+#include "nsPrintSettingsImpl.h"
+#include "nsCUPSShim.h"
+#include "nsString.h"
+
+/**
+ * @brief Interface to help implementing nsIPrinter using a CUPS printer.
+ */
+class nsPrinterCUPS final : public nsPrinterBase {
+ public:
+  NS_IMETHOD GetName(nsAString& aName) override;
+  PrintSettingsInitializer DefaultSettings() const final;
+  bool SupportsDuplex() const final;
+  bool SupportsColor() const final;
+  bool SupportsCollation() const final;
+  nsTArray<mozilla::PaperInfo> PaperList() const final;
+  MarginDouble GetMarginsForPaper(uint64_t) const final {
+    MOZ_ASSERT_UNREACHABLE(
+        "The CUPS API requires us to always get the margin when fetching the "
+        "paper list so there should be no need to query it separately");
+    return {};
+  }
+
+  nsPrinterCUPS() = delete;
+
+  nsPrinterCUPS(const nsCUPSShim& aShim, nsString aDisplayName,
+                cups_dest_t* aPrinter, cups_dinfo_t* aPrinterInfo,
+                uint64_t aCUPSMajor, uint64_t aCUPSMinor, uint64_t aCUPSPatch)
+      : mShim(aShim),
+        mDisplayName(std::move(aDisplayName)),
+        mPrinter(aPrinter),
+        mPrinterInfo(aPrinterInfo),
+        mCUPSMajor(aCUPSMajor),
+        mCUPSMinor(aCUPSMinor),
+        mCUPSPatch(aCUPSPatch) {}
+
+ private:
+  ~nsPrinterCUPS();
+
+  /**
+   * Retrieves the localized name for a given media (paper).
+   * Returns nullptr if the name cannot be localized.
+   */
+  const char* LocalizeMediaName(http_t& aConnection, cups_size_t& aMedia) const;
+
+  void GetPrinterName(nsAString& aName) const;
+
+  // Little util for getting support flags using the direct CUPS names.
+  bool Supports(const char* aOption, const char* aValue) const;
+
+  // Returns support value if CUPS meets the minimum version, otherwise returns
+  // |aDefault|
+  bool IsCUPSVersionAtLeast(uint64_t aCUPSMajor, uint64_t aCUPSMinor,
+                            uint64_t aCUPSPatch) const;
+
+  const nsCUPSShim& mShim;
+  nsString mDisplayName;
+  cups_dest_t* mPrinter;
+  cups_dinfo_t* mPrinterInfo;
+  uint64_t mCUPSMajor;
+  uint64_t mCUPSMinor;
+  uint64_t mCUPSPatch;
+};
+
+#endif /* nsPrinterCUPS_h___ */
