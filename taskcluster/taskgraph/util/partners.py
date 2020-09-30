@@ -279,6 +279,8 @@ def get_repack_configs(repackRepo, token):
 
 
 def get_attribution_config(manifestRepo, token):
+    log.debug("Skipping for 81.x")
+    return {}
     log.debug("Querying for manifest attribution_config.yml in %s", manifestRepo)
     owner, repo = get_repo_params(manifestRepo)
     query = MANIFEST_QUERY % {'owner': owner, 'repo': repo, 'file': 'attribution_config.yml'}
@@ -364,8 +366,8 @@ def get_partner_config_by_kind(config, kind):
             # TODO - should be fatal to have an unknown partner in partner_subset
             for partner in [p for p in kind_config.keys() if p not in partner_subset]:
                 del(kind_config[partner])
-        elif kind.startswith('release-partner-attribution'):
-            all_configs = deepcopy(kind_config["configs"])
+        elif kind.startswith('release-partner-attribution') and isinstance(kind_config, dict):
+            all_configs = deepcopy(kind_config.get("configs", []))
             kind_config["configs"] = []
             for this_config in all_configs:
                 if this_config["campaign"] in partner_subset:
