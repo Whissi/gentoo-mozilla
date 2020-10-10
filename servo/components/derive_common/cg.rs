@@ -218,6 +218,10 @@ where
             elem: Box::new(map_type_params(&inner.elem, params, self_type, f)),
             ..inner.clone()
         }),
+        Type::Group(ref inner) => Type::from(TypeGroup {
+            elem: Box::new(map_type_params(&inner.elem, params, f)),
+            ..inner.clone()
+        }),
         ref ty => panic!("type {:?} cannot be mapped yet", ty),
     }
 }
