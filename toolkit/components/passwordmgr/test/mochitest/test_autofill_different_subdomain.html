@@ -1,0 +1,109 @@
+xcod<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Test autofill on an HTTPS page using logins with different eTLD+1</title>
+  <script type="text/javascript" src="/tests/SimpleTest/SimpleTest.js"></script>
+  <script type="text/javascript" src="/tests/SimpleTest/EventUtils.js"></script>
+  <script type="text/javascript" src="/tests/SimpleTest/AddTask.js"></script>
+  <script type="text/javascript" src="pwmgr_common.js"></script>
+  <link rel="stylesheet" type="text/css" href="/tests/SimpleTest/test.css" />
+</head>
+<body>
+<script>
+const MISSING_ACTION_PATH = TESTS_DIR + "mochitest/form_basic.html";
+
+const chromeScript = runChecksAfterCommonInit(false);
+
+let nsLoginInfo = SpecialPowers.wrap(SpecialPowers.Components).Constructor("@mozilla.org/login-manager/loginInfo;1",
+                                                                           SpecialPowers.Ci.nsILoginInfo,
+                                                                           "init");
+</script>
+<p id="display"></p>
+
+<!-- we presumably can't hide the content for this test. -->
+<div id="content">
+  <iframe></iframe>
+</div>
+
+<pre id="test">
+<script class="testbody" type="text/javascript">
+let iframe = SpecialPowers.wrap(document.getElementsByTagName("iframe")[0]);
+
+let origin = window.location.origin;
+let otherOrigin = "https://foobar." + window.location.host;
+let oldOrigin = "https://old." + window.location.host;
+
+function checkIframeLoginForm(expectedUsername, expectedPassword) {
+  let iframeDoc = iframe.contentDocument;
+  let uname = iframeDoc.getElementById("form-basic-username");
+  let pword = iframeDoc.getElementById("form-basic-password");
+  checkLoginForm(uname, expectedUsername, pword, expectedPassword);
+}
+async function prepareLoginsAndProcessForm(url, logins = []) {
+  await LoginManager.removeAllLogins();
+
+  let dates = Date.now();
+  for (let login of logins) {
+    SpecialPowers.do_QueryInterface(login, SpecialPowers.Ci.nsILoginMetaInfo);
+    // Force all dates to be the same so they don't affect things like deduping.
+    login.timeCreated = login.timePasswordChanged = login.timeLastUsed = dates;
+    await LoginManager.addLogin(login);
+  }
+
+  let processedPromise = promiseFormsProcessedInChildFrame();
+  iframe.src = url;
+  await processedPromise;
+}
+
+add_task(async function test_login_with_different_subdomain_shouldnt_autofill_wildcard_formActionOrigin() {
+  await prepareLoginsAndProcessForm(origin + MISSING_ACTION_PATH, [
+    new nsLoginInfo(otherOrigin, "", null,
+                    "name2", "pass2", "uname", "pword"),
+  ]);
+
+  checkIframeLoginForm("", "");
+});
+
+add_task(async function test_login_with_different_subdomain_shouldnt_autofill_same_domain_formActionOrigin() {
+  await prepareLoginsAndProcessForm(origin + MISSING_ACTION_PATH, [
+    new nsLoginInfo(otherOrigin, origin, null,
+                    "name2", "pass2", "uname", "pword"),
+  ]);
+
+  checkIframeLoginForm("", "");
+});
+
+add_task(async function test_matching_logins_with_different_subdomain_and_matching_domain_should_autofill() {
+  await prepareLoginsAndProcessForm(origin + MISSING_ACTION_PATH, [
+    new nsLoginInfo(origin, origin, null,
+                    "name2", "pass2", "uname", "pword"),
+    new nsLoginInfo(oldOrigin, origin, null,
+                    "name2", "pass2", "uname", "pword"),
+  ]);
+
+  checkIframeLoginForm("name2", "pass2");
+});
+
+add_task(async function test_login_with_different_subdomain_shouldnt_autofill_different_subdomain_formActionOrigin() {
+  await prepareLoginsAndProcessForm(origin + MISSING_ACTION_PATH, [
+    new nsLoginInfo(otherOrigin, otherOrigin, null,
+                    "name2", "pass2", "uname", "pword"),
+  ]);
+
+  checkIframeLoginForm("", "");
+});
+
+add_task(async function test_login_with_different_subdomain_shouldnt_autofill_different_domain_formActionOrigin() {
+  await prepareLoginsAndProcessForm(origin + MISSING_ACTION_PATH, [
+    new nsLoginInfo(otherOrigin, "https://example.net", null,
+                    "name2", "pass2", "uname", "pword"),
+  ]);
+
+  checkIframeLoginForm("", "");
+});
+
+</script>
+</pre>
+</body>
+</html>
