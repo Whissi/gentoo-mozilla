@@ -31,6 +31,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #if defined(LINUX)
+#include <net/if.h>
 #include "addrs-netlink.h"
 #include <csi_platform.h>
 #include <assert.h>
