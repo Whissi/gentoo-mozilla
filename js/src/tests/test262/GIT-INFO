@@ -1,0 +1,5 @@
+commit 323905b70e644d90faa957235f8ac59eac4ba8ba
+Author: Alexey Shvayka <shvaikalesh@gmail.com>
+Date:   Wed Sep 9 22:59:23 2020 +0300
+
+    Improve RegExp.prototype[@@replace] poisoned stdlib test
