@@ -45,6 +45,9 @@ XPCOMUtils.defineLazyServiceGetter(
   "nsIOSPermissionRequest"
 );
 
+const PIPEWIRE_PORTAL_NAME = "####_PIPEWIRE_PORTAL_####";
+const PIPEWIRE_ID = 0xaffffff;
+
 class WebRTCParent extends JSWindowActorParent {
   didDestroy() {
     webrtcUI.forgetStreamsFromBrowserContext(this.browsingContext);
@@ -753,6 +756,8 @@ function prompt(aActor, aBrowser, aRequest) {
         );
         menupopup.appendChild(doc.createXULElement("menuseparator"));
 
+        let isPipeWire = false;
+
         // Build the list of 'devices'.
         let monitorIndex = 1;
         for (let i = 0; i < devices.length; ++i) {
@@ -774,6 +779,29 @@ function prompt(aActor, aBrowser, aRequest) {
             }
           } else {
             name = device.name;
+            // When we share content by PipeWire add only one item to the device
+            // list. When it's selected PipeWire portal dialog is opened and
+            // user confirms actual window/screen sharing there.
+            // Don't mark it as scary as there's an extra confirmation step by
+            // PipeWire portal dialog.
+            if (name == PIPEWIRE_PORTAL_NAME && device.id == PIPEWIRE_ID) {
+              isPipeWire = true;
+              let name;
+              try {
+                name = stringBundle.getString("getUserMedia.sharePipeWirePortal.label");
+              } catch (err) {
+                name = "Use operating system settings"
+              }
+              let item = addDeviceToList(
+                menupopup,
+                name,
+                i,
+                type
+              );
+              item.deviceId = device.id;
+              item.mediaSource = type;
+              break;
+            }
             if (type == "application") {
               // The application names returned by the platform are of the form:
               // <window count>\x1e<application name>
@@ -888,39 +916,41 @@ function prompt(aActor, aBrowser, aRequest) {
             perms.EXPIRE_SESSION
           );
 
-          video.deviceId = deviceId;
-          let constraints = {
-            video: { mediaSource: type, deviceId: { exact: deviceId } },
-          };
-          chromeWin.navigator.mediaDevices.getUserMedia(constraints).then(
-            stream => {
-              if (video.deviceId != deviceId) {
-                // The user has selected a different device or closed the panel
-                // before getUserMedia finished.
-                stream.getTracks().forEach(t => t.stop());
-                return;
+          if (!isPipeWire) {
+            video.deviceId = deviceId;
+            let constraints = {
+              video: { mediaSource: type, deviceId: { exact: deviceId } },
+            };
+            chromeWin.navigator.mediaDevices.getUserMedia(constraints).then(
+              stream => {
+                if (video.deviceId != deviceId) {
+                  // The user has selected a different device or closed the panel
+                  // before getUserMedia finished.
+                  stream.getTracks().forEach(t => t.stop());
+                  return;
+                }
+                video.srcObject = stream;
+                video.stream = stream;
+                doc.getElementById("webRTC-preview").hidden = false;
+                video.onloadedmetadata = function(e) {
+                  video.play();
+                };
+              },
+              err => {
+                if (
+                  err.name == "OverconstrainedError" &&
+                  err.constraint == "deviceId"
+                ) {
+                  // Window has disappeared since enumeration, which can happen.
+                  // No preview for you.
+                  return;
+                }
+                Cu.reportError(
+                  `error in preview: ${err.message} ${err.constraint}`
+                );
               }
-              video.srcObject = stream;
-              video.stream = stream;
-              doc.getElementById("webRTC-preview").hidden = false;
-              video.onloadedmetadata = function(e) {
-                video.play();
-              };
-            },
-            err => {
-              if (
-                err.name == "OverconstrainedError" &&
-                err.constraint == "deviceId"
-              ) {
-                // Window has disappeared since enumeration, which can happen.
-                // No preview for you.
-                return;
-              }
-              Cu.reportError(
-                `error in preview: ${err.message} ${err.constraint}`
-              );
-            }
-          );
+            );
+          }
         };
         menupopup.addEventListener("command", menupopup._commandEventListener);
       }
