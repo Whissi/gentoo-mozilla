@@ -393,6 +393,7 @@ void BaseCapturerPipeWire::HandleBuffer(pw_buffer* buffer) {
     video_size_ = desktop_size_;
   }
 
+  rtc::CritScope lock(&current_frame_lock_);
   if (!current_frame_ ||
       (video_metadata_use_ && !video_size_.equals(video_size_prev))) {
     current_frame_ =
@@ -858,6 +859,7 @@ void BaseCapturerPipeWire::CaptureFrame() {
     return;
   }
 
+  rtc::CritScope lock(&current_frame_lock_);
   if (!current_frame_) {
     callback_->OnCaptureResult(Result::ERROR_TEMPORARY, nullptr);
     return;
