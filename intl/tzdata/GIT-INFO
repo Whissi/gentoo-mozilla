@@ -1,0 +1,5 @@
+commit 6f3ba24de06047e73291b790f6623b282d392d30
+Author: Yoshito Umaoka <yumaoka@users.noreply.github.com>
+Date:   Thu Oct 22 12:52:08 2020 -0400
+
+    ICU-21350 tz database 2020d updates in icu-data (#14)

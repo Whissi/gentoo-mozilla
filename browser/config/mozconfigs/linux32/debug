@@ -1,0 +1,20 @@
+ac_add_options --enable-debug
+
+. $topsrcdir/build/unix/mozconfig.linux32
+
+# Needed to enable breakpad in application.ini
+export MOZILLA_OFFICIAL=1
+
+#Use ccache
+
+# Package js shell.
+export MOZ_PACKAGE_JSSHELL=1
+
+if [ -z "$USE_ARTIFACT" ]; then
+  # Keep basic GDB symbols around in debug builds
+  ac_add_options STRIP_FLAGS=--strip-debug
+fi
+
+ac_add_options --with-branding=browser/branding/nightly
+
+. "$topsrcdir/build/mozconfig.common.override"
