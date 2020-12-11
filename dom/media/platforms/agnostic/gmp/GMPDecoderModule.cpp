@@ -82,7 +82,7 @@ bool GMPDecoderModule::SupportsMimeType(const nsACString& aMimeType,
 
 bool GMPDecoderModule::SupportsMimeType(
     const nsACString& aMimeType, DecoderDoctorDiagnostics* aDiagnostics) const {
-  return false;
+  return MP4Decoder::IsH264(aMimeType);
 }
 
 /* static */
