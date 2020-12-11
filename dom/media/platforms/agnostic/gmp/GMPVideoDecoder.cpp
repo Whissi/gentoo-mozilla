@@ -68,6 +68,8 @@ void GMPVideoDecoder::Decoded(GMPVideoi420Frame* aDecodedFrame) {
   RefPtr<GMPVideoDecoder> self = this;
   if (v) {
     mDecodedData.AppendElement(std::move(v));
+    mDecodePromise.ResolveIfExists(std::move(mDecodedData), __func__);
+    mDecodedData = DecodedData();
   } else {
     mDecodedData.Clear();
     mDecodePromise.RejectIfExists(
