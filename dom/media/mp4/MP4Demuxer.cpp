@@ -31,6 +31,8 @@ mozilla::LogModule* GetDemuxerLog() { return gMediaDemuxerLog; }
   DDMOZ_LOG(gMediaDemuxerLog, mozilla::LogLevel::Debug, "::%s: " arg, \
             __func__, ##__VA_ARGS__)
 
+extern bool gUseKeyframeFromContainer;
+
 namespace mozilla {
 
 DDLoggedTypeDeclNameAndBase(MP4TrackDemuxer, MediaTrackDemuxer);
@@ -394,6 +396,12 @@ already_AddRefed<MediaRawData> MP4TrackDemuxer::GetNextSample() {
           [[fallthrough]];
         case H264::FrameType::OTHER: {
           bool keyframe = type == H264::FrameType::I_FRAME;
+          if (gUseKeyframeFromContainer) {
+            if (sample->mKeyframe && sample->mKeyframe != keyframe) {
+              sample->mKeyframe = keyframe;
+            }
+            break;
+          }
           if (sample->mKeyframe != keyframe) {
             NS_WARNING(nsPrintfCString("Frame incorrectly marked as %skeyframe "
                                        "@ pts:%" PRId64 " dur:%" PRId64
