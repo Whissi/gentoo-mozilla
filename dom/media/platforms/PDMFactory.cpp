@@ -58,6 +58,8 @@
 
 #include <functional>
 
+bool gUseKeyframeFromContainer = false;
+
 namespace mozilla {
 
 #define PDM_INIT_LOG(msg, ...) \
@@ -513,9 +515,11 @@ void PDMFactory::CreateContentPDMs() {
   }
 #endif
 #ifdef MOZ_FFMPEG
-  if (StaticPrefs::media_ffmpeg_enabled() &&
-      !CreateAndStartupPDM<FFmpegRuntimeLinker>()) {
-    mFailureFlags += DecoderDoctorDiagnostics::Flags::FFmpegFailedToLoad;
+  if (StaticPrefs::media_ffmpeg_enabled()) {
+    mFFmpegUsed = CreateAndStartupPDM<FFmpegRuntimeLinker>();
+    if (!mFFmpegUsed) {
+      mFailureFlags += DecoderDoctorDiagnostics::Flags::FFmpegFailedToLoad;
+    }
   }
 #endif
 #ifdef MOZ_WIDGET_ANDROID
@@ -527,8 +531,9 @@ void PDMFactory::CreateContentPDMs() {
 
   CreateAndStartupPDM<AgnosticDecoderModule>();
 
-  if (StaticPrefs::media_gmp_decoder_enabled() &&
+  if (StaticPrefs::media_gmp_decoder_enabled() && !mFFmpegUsed &&
       !CreateAndStartupPDM<GMPDecoderModule>()) {
+    gUseKeyframeFromContainer = true;
     mFailureFlags += DecoderDoctorDiagnostics::Flags::GMPPDMFailedToStartup;
   }
 }

@@ -121,6 +121,8 @@ class PDMFactory final {
 
   DecoderDoctorDiagnostics::FlagsSet mFailureFlags;
 
+  bool mFFmpegUsed = false;
+
   friend class RemoteVideoDecoderParent;
   static void EnsureInit();
 };
