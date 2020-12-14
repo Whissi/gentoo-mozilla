@@ -381,7 +381,7 @@ enum OwnTransferablePolicy {
 namespace js {
 class SharedArrayRawBuffer;
 
-class SharedArrayRawBufferRefs {
+class JS_PUBLIC_API SharedArrayRawBufferRefs {
  public:
   SharedArrayRawBufferRefs() = default;
   SharedArrayRawBufferRefs(SharedArrayRawBufferRefs&& other) = default;
