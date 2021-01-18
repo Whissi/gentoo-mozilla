@@ -1,0 +1,152 @@
+/* -*- Mode: C++; tab-width: 8; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+#ifndef TRRService_h_
+#define TRRService_h_
+
+#include "mozilla/DataMutex.h"
+#include "nsHostResolver.h"
+#include "nsIObserver.h"
+#include "nsITimer.h"
+#include "nsWeakReference.h"
+#include "TRRServiceBase.h"
+
+class nsDNSService;
+class nsIPrefBranch;
+class nsINetworkLinkService;
+class nsIObserverService;
+
+namespace mozilla {
+namespace net {
+
+class TRRServiceChild;
+class TRRServiceParent;
+
+class TRRService : public TRRServiceBase,
+                   public nsIObserver,
+                   public nsITimerCallback,
+                   public nsSupportsWeakReference,
+                   public AHostResolver {
+ public:
+  NS_DECL_THREADSAFE_ISUPPORTS
+  NS_DECL_NSIOBSERVER
+  NS_DECL_NSITIMERCALLBACK
+
+  TRRService();
+  nsresult Init();
+  nsresult Start();
+  bool Enabled(nsIRequest::TRRMode aMode = nsIRequest::TRR_FIRST_MODE);
+  bool IsConfirmed() { return mConfirmationState == CONFIRM_OK; }
+
+  bool DisableIPv6() { return mDisableIPv6; }
+  nsresult GetURI(nsACString& result);
+  nsresult GetCredentials(nsCString& result);
+  uint32_t GetRequestTimeout();
+
+  LookupStatus CompleteLookup(nsHostRecord*, nsresult, mozilla::net::AddrInfo*,
+                              bool pb, const nsACString& aOriginSuffix,
+                              nsHostRecord::TRRSkippedReason aReason) override;
+  LookupStatus CompleteLookupByType(nsHostRecord*, nsresult,
+                                    mozilla::net::TypeRecordResultType&,
+                                    uint32_t, bool pb) override;
+  void AddToBlocklist(const nsACString& host, const nsACString& originSuffix,
+                      bool privateBrowsing, bool aParentsToo);
+  bool IsTemporarilyBlocked(const nsACString& aHost,
+                            const nsACString& aOriginSuffix,
+                            bool aPrivateBrowsing, bool aParentsToo);
+  bool IsExcludedFromTRR(const nsACString& aHost);
+
+  bool MaybeBootstrap(const nsACString& possible, nsACString& result);
+  enum TrrOkay { OKAY_NORMAL = 0, OKAY_TIMEOUT = 1, OKAY_BAD = 2 };
+  void TRRIsOkay(enum TrrOkay aReason);
+  bool ParentalControlEnabled() const { return mParentalControlEnabled; }
+
+  nsresult DispatchTRRRequest(TRR* aTrrRequest);
+  already_AddRefed<nsIThread> TRRThread();
+  bool IsOnTRRThread();
+
+  bool IsUsingAutoDetectedURL() { return mURISetByDetection; }
+  static const nsCString& AutoDetectedKey();
+
+ private:
+  virtual ~TRRService();
+
+  friend class TRRServiceChild;
+  friend class TRRServiceParent;
+  static void AddObserver(nsIObserver* aObserver,
+                          nsIObserverService* aObserverService = nullptr);
+  static bool CheckCaptivePortalIsPassed();
+  static bool GetParentalControlEnabledInternal();
+  static bool CheckPlatformDNSStatus(nsINetworkLinkService* aLinkService);
+
+  nsresult ReadPrefs(const char* name);
+  void GetPrefBranch(nsIPrefBranch** result);
+  void MaybeConfirm();
+  void MaybeConfirm_locked();
+  friend class ::nsDNSService;
+  void SetDetectedTrrURI(const nsACString& aURI);
+
+  bool IsDomainBlocked(const nsACString& aHost, const nsACString& aOriginSuffix,
+                       bool aPrivateBrowsing);
+  bool IsExcludedFromTRR_unlocked(const nsACString& aHost);
+
+  void RebuildSuffixList(nsTArray<nsCString>&& aSuffixList);
+
+  nsresult DispatchTRRRequestInternal(TRR* aTrrRequest, bool aWithLock);
+  already_AddRefed<nsIThread> TRRThread_locked();
+
+  // This method will process the URI and try to set mPrivateURI to that value.
+  // Will return true if performed the change (if the value was different)
+  // or false if mPrivateURI already had that value.
+  bool MaybeSetPrivateURI(const nsACString& aURI) override;
+  void ClearEntireCache();
+
+  virtual void ReadEtcHostsFile() override;
+  void AddEtcHosts(const nsTArray<nsCString>&);
+
+  bool mInitialized;
+  Atomic<uint32_t, Relaxed> mBlocklistDurationSeconds;
+
+  Mutex mLock;
+
+  nsCString mPrivateCred;  // main thread only
+  nsCString mConfirmationNS;
+  nsCString mBootstrapAddr;
+
+  Atomic<bool, Relaxed>
+      mCaptiveIsPassed;  // set when captive portal check is passed
+  Atomic<bool, Relaxed> mDisableIPv6;  // don't even try
+
+  // TRR Blocklist storage
+  // mTRRBLStorage is only modified on the main thread, but we query whether it
+  // is initialized or not off the main thread as well. Therefore we need to
+  // lock while creating it and while accessing it off the main thread.
+  DataMutex<nsDataHashtable<nsCStringHashKey, int32_t>> mTRRBLStorage;
+
+  // A set of domains that we should not use TRR for.
+  nsTHashtable<nsCStringHashKey> mExcludedDomains;
+  nsTHashtable<nsCStringHashKey> mDNSSuffixDomains;
+  nsTHashtable<nsCStringHashKey> mEtcHostsDomains;
+
+  enum ConfirmationState {
+    CONFIRM_INIT = 0,
+    CONFIRM_TRYING = 1,
+    CONFIRM_OK = 2,
+    CONFIRM_FAILED = 3
+  };
+  Atomic<ConfirmationState, Relaxed> mConfirmationState;
+  RefPtr<TRR> mConfirmer;
+  nsCOMPtr<nsITimer> mRetryConfirmTimer;
+  uint32_t mRetryConfirmInterval;  // milliseconds until retry
+  Atomic<uint32_t, Relaxed> mTRRFailures;
+  bool mParentalControlEnabled;
+};
+
+extern TRRService* gTRRService;
+
+}  // namespace net
+}  // namespace mozilla
+
+#endif  // TRRService_h_
