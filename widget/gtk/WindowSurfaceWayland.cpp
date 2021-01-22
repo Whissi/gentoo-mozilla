@@ -900,6 +900,8 @@ void WindowSurfaceWayland::CacheImageSurface(
                     size.width, size.height));
       }
 #endif
+    } else {
+      mDelayedImageCommits.AppendElement(lastSurf);
     }
   }
 
