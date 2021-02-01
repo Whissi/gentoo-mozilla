@@ -169,6 +169,10 @@ void nsRemoteService::StartupServer() {
   return;
 #endif
 
+  if (!mRemoteServer) {
+    return;
+  }
+
   nsresult rv = mRemoteServer->Startup(mProgram.get(), mProfile.get());
 
   if (NS_FAILED(rv)) {
