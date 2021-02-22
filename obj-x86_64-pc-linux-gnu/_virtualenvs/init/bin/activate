@@ -46,7 +46,7 @@ deactivate () {
 # unset irrelevant variables
 deactivate nondestructive
 
-VIRTUAL_ENV="/builds/worker/checkouts/gecko/obj-x86_64-pc-linux-gnu/_virtualenvs/init"
+VIRTUAL_ENV='/builds/worker/checkouts/gecko/obj-x86_64-pc-linux-gnu/_virtualenvs/init'
 export VIRTUAL_ENV
 
 _OLD_VIRTUAL_PATH="$PATH"
