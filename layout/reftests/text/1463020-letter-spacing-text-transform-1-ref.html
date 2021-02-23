@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<meta charset=utf-8>
+<style>
+span {
+  /* On Windows, we need to use the TwEmoji Mozilla font in preference to
+     Segoe UI Emoji, as the latter doesn't support the Regional-Indicator
+     flag ligatures. */
+  font-family: TwEmoji Mozilla, sans-serif;
+  font-size: 36px;
+  font-kerning: none;
+}
+#ref {
+  text-transform: uppercase;
+}
+</style>
+<body>
+  <p>The two lines should match:
+  <p><span id="ref">S&nbsp;&nbsp;🇸🇪&nbsp;&nbsp;v&nbsp;&nbsp;e</span>
+  <p><span id="ref">S&nbsp;&nbsp;🇸🇪&nbsp;&nbsp;v&nbsp;&nbsp;e</span>
+</body>

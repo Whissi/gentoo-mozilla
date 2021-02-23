@@ -1,0 +1,13 @@
+AllowCompilerWarnings()
+if CONFIG['CC_TYPE'] in ('clang', 'clang-cl'):
+    CXXFLAGS += [
+        '-Wno-final-dtor-non-final-class',
+        '-Wno-implicit-const-int-float-conversion',
+        '-Wno-range-loop-construct',
+    ]
+
+if CONFIG['INTEL_ARCHITECTURE']:
+    CXXFLAGS += CONFIG['SSE2_FLAGS']
+DEFINES['__NDK_FPABI__'] = ''
+DEFINES['ANGLE_SKIP_DXGI_1_2_CHECK'] = True
+DEFINES['ANGLE_ENABLE_KEYEDMUTEX'] = True
