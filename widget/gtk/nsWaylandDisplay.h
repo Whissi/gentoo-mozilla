@@ -14,6 +14,8 @@
 #include "mozilla/widget/gbm.h"
 #include "mozilla/widget/gtk-primary-selection-client-protocol.h"
 #include "mozilla/widget/idle-inhibit-unstable-v1-client-protocol.h"
+#include "mozilla/widget/relative-pointer-unstable-v1-client-protocol.h"
+#include "mozilla/widget/pointer-constraints-unstable-v1-client-protocol.h"
 #include "mozilla/widget/linux-dmabuf-unstable-v1-client-protocol.h"
 #include "mozilla/widget/primary-selection-unstable-v1-client-protocol.h"
 
@@ -61,6 +63,12 @@ class nsWaylandDisplay {
   zwp_idle_inhibit_manager_v1* GetIdleInhibitManager(void) {
     return mIdleInhibitManager;
   }
+  zwp_relative_pointer_manager_v1* GetRelativePointerManager(void) {
+    return mRelativePointerManager;
+  }
+  zwp_pointer_constraints_v1* GetPointerConstraints(void) {
+    return mPointerConstraints;
+  }
 
   bool IsMainThreadDisplay() { return mEventQueue == nullptr; }
 
@@ -75,6 +83,9 @@ class nsWaylandDisplay {
       zwp_primary_selection_device_manager_v1* aPrimarySelectionDeviceManager);
   void SetIdleInhibitManager(zwp_idle_inhibit_manager_v1* aIdleInhibitManager);
 
+  void SetRelativePointerManager(
+      zwp_relative_pointer_manager_v1* aRelativePointerManager);
+  void SetPointerConstraints(zwp_pointer_constraints_v1* aPointerConstraints);
   bool IsExplicitSyncEnabled() { return mExplicitSync; }
 
  private:
@@ -92,6 +103,8 @@ class nsWaylandDisplay {
   gtk_primary_selection_device_manager* mPrimarySelectionDeviceManagerGtk;
   zwp_primary_selection_device_manager_v1* mPrimarySelectionDeviceManagerZwpV1;
   zwp_idle_inhibit_manager_v1* mIdleInhibitManager;
+  zwp_relative_pointer_manager_v1* mRelativePointerManager;
+  zwp_pointer_constraints_v1* mPointerConstraints;
   wl_registry* mRegistry;
   bool mExplicitSync;
 };
