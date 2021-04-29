@@ -46,11 +46,13 @@ if CONFIG['OS_ARCH'] in ('DragonFly', 'FreeBSD', 'SunOS'):
     ]
     DEFINES['USE_OSS'] = True
 
-if CONFIG['OS_ARCH'] == 'OpenBSD':
+if CONFIG['MOZ_SNDIO']:
     SOURCES += [
         'cubeb_sndio.c',
     ]
     DEFINES['USE_SNDIO'] = True
+
+if CONFIG['OS_ARCH'] == 'OpenBSD':
     DEFINES['DISABLE_LIBSNDIO_DLOPEN'] = True
 
 if CONFIG['OS_TARGET'] == 'Darwin':
