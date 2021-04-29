@@ -647,6 +647,7 @@ STUB(gtk_color_chooser_get_type)
 STUB(gtk_color_chooser_set_rgba)
 STUB(gtk_color_chooser_get_rgba)
 STUB(gtk_color_chooser_set_use_alpha)
+STUB(gdk_wayland_device_get_wl_pointer)
 #endif
 
 #ifdef GTK2_SYMBOLS
