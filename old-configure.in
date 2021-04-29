@@ -2473,6 +2473,23 @@ fi
 AC_SUBST(NECKO_WIFI)
 AC_SUBST(NECKO_WIFI_DBUS)
 
+
+dnl ==================================
+dnl = Check sndio availability
+dnl ==================================
+
+MOZ_ARG_ENABLE_BOOL(sndio,
+[  --enable-sndio         Enable sndio support],
+   MOZ_SNDIO=1,
+   MOZ_SNDIO=)
+
+if test -n "$MOZ_SNDIO"; then
+    MOZ_SNDIO_LIBS="-lsndio"
+    AC_SUBST_LIST(MOZ_SNDIO_LIBS)
+fi
+
+AC_SUBST(MOZ_SNDIO)
+
 dnl ========================================================
 dnl =
 dnl = Maintainer debug option (no --enable equivalent)
