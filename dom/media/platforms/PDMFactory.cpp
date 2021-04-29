@@ -481,18 +481,18 @@ void PDMFactory::CreateRddPDMs() {
     CreateAndStartupPDM<AppleDecoderModule>();
   }
 #endif
-#ifdef MOZ_FFVPX
-  if (StaticPrefs::media_ffvpx_enabled() &&
-      StaticPrefs::media_rdd_ffvpx_enabled()) {
-    CreateAndStartupPDM<FFVPXRuntimeLinker>();
-  }
-#endif
 #ifdef MOZ_FFMPEG
   if (StaticPrefs::media_ffmpeg_enabled() &&
       StaticPrefs::media_rdd_ffmpeg_enabled() &&
       !CreateAndStartupPDM<FFmpegRuntimeLinker>()) {
     mFailureFlags += GetFailureFlagBasedOnFFmpegStatus(
         FFmpegRuntimeLinker::LinkStatusCode());
+  }
+#endif
+#ifdef MOZ_FFVPX
+  if (StaticPrefs::media_ffvpx_enabled() &&
+      StaticPrefs::media_rdd_ffvpx_enabled()) {
+    CreateAndStartupPDM<FFVPXRuntimeLinker>();
   }
 #endif
   CreateAndStartupPDM<AgnosticDecoderModule>();
@@ -525,16 +525,16 @@ void PDMFactory::CreateContentPDMs() {
     CreateAndStartupPDM<OmxDecoderModule>();
   }
 #endif
-#ifdef MOZ_FFVPX
-  if (StaticPrefs::media_ffvpx_enabled()) {
-    CreateAndStartupPDM<FFVPXRuntimeLinker>();
-  }
-#endif
 #ifdef MOZ_FFMPEG
   if (StaticPrefs::media_ffmpeg_enabled() &&
       !CreateAndStartupPDM<FFmpegRuntimeLinker>()) {
     mFailureFlags += GetFailureFlagBasedOnFFmpegStatus(
         FFmpegRuntimeLinker::LinkStatusCode());
+  }
+#endif
+#ifdef MOZ_FFVPX
+  if (StaticPrefs::media_ffvpx_enabled()) {
+    CreateAndStartupPDM<FFVPXRuntimeLinker>();
   }
 #endif
 #ifdef MOZ_WIDGET_ANDROID
@@ -571,16 +571,16 @@ void PDMFactory::CreateDefaultPDMs() {
     CreateAndStartupPDM<OmxDecoderModule>();
   }
 #endif
-#ifdef MOZ_FFVPX
-  if (StaticPrefs::media_ffvpx_enabled()) {
-    CreateAndStartupPDM<FFVPXRuntimeLinker>();
-  }
-#endif
 #ifdef MOZ_FFMPEG
   if (StaticPrefs::media_ffmpeg_enabled() &&
       !CreateAndStartupPDM<FFmpegRuntimeLinker>()) {
     mFailureFlags += GetFailureFlagBasedOnFFmpegStatus(
         FFmpegRuntimeLinker::LinkStatusCode());
+  }
+#endif
+#ifdef MOZ_FFVPX
+  if (StaticPrefs::media_ffvpx_enabled()) {
+    CreateAndStartupPDM<FFVPXRuntimeLinker>();
   }
 #endif
 #ifdef MOZ_WIDGET_ANDROID
