@@ -553,6 +553,7 @@ nsWindow::nsWindow() {
   mTitlebarBackdropState = false;
 
   mHasAlphaVisual = false;
+  mIsWaylandPanelWindow = false;
   mIsPIPWindow = false;
   mAlwaysOnTop = false;
 
@@ -3713,7 +3714,7 @@ void nsWindow::OnButtonPressEvent(GdkEventButton* aEvent) {
 
   LayoutDeviceIntPoint refPoint =
       GdkEventCoordsToDevicePixels(aEvent->x, aEvent->y);
-  if (mDraggableRegion.Contains(refPoint.x, refPoint.y) &&
+  if ((mIsWaylandPanelWindow || mDraggableRegion.Contains(refPoint.x, refPoint.y)) &&
       domButton == MouseButton::ePrimary &&
       eventStatus.mContentStatus != nsEventStatus_eConsumeNoDefault) {
     mWindowShouldStartDragging = true;
@@ -4625,8 +4626,9 @@ nsresult nsWindow::Create(nsIWidget* aParent, nsNativeWidget aNativeParent,
       // as a workaround.
       mWindowType = eWindowType_toplevel;
     } else if (mWindowType == eWindowType_popup && !aNativeParent && !aParent) {
-      // Workaround for Wayland where the popup windows always need to have
-      // parent window. For example webrtc ui is a popup window without parent.
+      // mIsWaylandPanelWindow is a special toplevel window on Wayland which
+      // emulates X11 popup window without parent.
+      mIsWaylandPanelWindow = true;
       mWindowType = eWindowType_toplevel;
     }
   }
@@ -4653,8 +4655,10 @@ nsresult nsWindow::Create(nsIWidget* aParent, nsNativeWidget aNativeParent,
       // popup window position.
       GtkWindowType type = GTK_WINDOW_TOPLEVEL;
       if (mWindowType == eWindowType_popup) {
-        type = (mIsX11Display && aInitData->mNoAutoHide) ? GTK_WINDOW_TOPLEVEL
-                                                         : GTK_WINDOW_POPUP;
+        type = GTK_WINDOW_POPUP;
+        if (GdkIsX11Display() && aInitData->mNoAutoHide) {
+          type = GTK_WINDOW_TOPLEVEL;
+        }
       }
       mShell = gtk_window_new(type);
 
@@ -4900,6 +4904,10 @@ nsresult nsWindow::Create(nsIWidget* aParent, nsNativeWidget aNativeParent,
         MaybeResumeCompositor();
       }
 #endif
+
+      if (mIsWaylandPanelWindow) {
+        gtk_window_set_decorated(GTK_WINDOW(mShell), false);
+      }
 
       if (mWindowType == eWindowType_popup) {
         // gdk does not automatically set the cursor for "temporary"
