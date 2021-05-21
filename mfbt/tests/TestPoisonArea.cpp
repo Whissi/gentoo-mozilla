@@ -132,6 +132,9 @@
 #elif defined _ARCH_PPC || defined _ARCH_PWR || defined _ARCH_PWR2
 #  define RETURN_INSTR 0x4E800020 /* blr */
 
+#elif defined __riscv
+#  define RETURN_INSTR 0x80828082 /* ret; ret */
+
 #elif defined __sparc || defined __sparcv9
 #  define RETURN_INSTR 0x81c3e008 /* retl */
 
