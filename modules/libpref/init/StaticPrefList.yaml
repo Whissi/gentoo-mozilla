@@ -4551,7 +4551,11 @@
 
 - name: gfx.e10s.font-list.shared
   type: bool
+#if defined(XP_LINUX) || defined(XP_WIN)
+  value: false
+#else
   value: true
+#endif
   mirror: once
 
 # Whether to load fonts (e.g. Twemoji Mozilla) bundled with the application:
@@ -4845,6 +4849,13 @@
   type: bool
   value: false
   mirror: once
+
+#ifdef MOZ_WIDGET_GTK
+- name: gfx.webrender.reject-software-driver
+  type: bool
+  value: true
+  mirror: once
+#endif
 
 - name: gfx.webrender.highlight-painted-layers
   type: RelaxedAtomicBool
@@ -11116,7 +11127,13 @@
 # Whether we should try to use WebRender to render widgets.
 - name: widget.non-native-theme.webrender
   type: bool
+#if defined(XP_MACOSX)
+  # Disabled on macOS release / beta because of a suspected AMD driver bug (see
+  # bug 1715452).
+  value: @IS_NIGHTLY_BUILD@
+#else
   value: true
+#endif
   mirror: always
 
 # Preference to disable dark scrollbar implementation.
