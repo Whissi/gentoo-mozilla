@@ -1,0 +1,56 @@
+{
+  "data": [
+    {
+      "stash": {
+        "blocked": [],
+        "unblocked": []
+      },
+      "schema": 1624392815746,
+      "key_format": "{guid}:{version}",
+      "stash_time": 1624624508662,
+      "id": "8f07a704-ce05-4549-8587-4ecc77832c31",
+      "last_modified": 1624624687053
+    },
+    {
+      "stash": {
+        "blocked": [
+          "privateviewaddonsandroid@foxcoo.com:2.0"
+        ],
+        "unblocked": []
+      },
+      "schema": 1623194747785,
+      "key_format": "{guid}:{version}",
+      "stash_time": 1623760508476,
+      "id": "e49a86cf-6cea-4cb8-be16-a62d766adaf6",
+      "last_modified": 1623760689131
+    },
+    {
+      "stash": {
+        "blocked": [
+          "{4bba1396-c9b9-4119-9326-21c44720ddc2}:1.0.5"
+        ],
+        "unblocked": []
+      },
+      "schema": 1623091353398,
+      "key_format": "{guid}:{version}",
+      "stash_time": 1623172690586,
+      "id": "5cfd17b4-5de4-403d-b2c5-182aeaf67fdf",
+      "last_modified": 1623172860273
+    },
+    {
+      "schema": 1623091351671,
+      "attachment": {
+        "hash": "7864a9ce7434ce56b4ef2eec937d49f447ebc72d865ba38995f9ec4d44ddd7ee",
+        "size": 773977,
+        "filename": "filter.bin",
+        "location": "staging/addons-bloomfilters/824f78f1-a27c-4e99-950d-45e254825261.bin",
+        "mimetype": "application/octet-stream"
+      },
+      "key_format": "{guid}:{version}",
+      "attachment_type": "bloomfilter-base",
+      "generation_time": 1623090915081,
+      "id": "fce900a1-8bd0-423c-8317-80f289b8e0d5",
+      "last_modified": 1623091353351
+    }
+  ]
+}

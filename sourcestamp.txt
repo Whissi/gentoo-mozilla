@@ -1,0 +1,2 @@
+20210705185941
+https://hg.mozilla.org/releases/mozilla-release/rev/47c82d2ce122eab0664b51c372d99fc868227506
