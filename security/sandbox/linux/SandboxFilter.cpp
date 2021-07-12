@@ -835,6 +835,9 @@ class SandboxPolicyCommon : public SandboxPolicyBase {
       case __NR_clone:
         return ClonePolicy(InvalidSyscall());
 
+      case __NR_clone3:
+        return Error(ENOSYS);
+
         // More thread creation.
 #ifdef __NR_set_robust_list
       case __NR_set_robust_list:
@@ -1479,6 +1482,10 @@ class ContentSandboxPolicy : public SandboxPolicyCommon {
         // usually do something reasonable on error.
       case __NR_clone:
         return ClonePolicy(Error(EPERM));
+
+      case __NR_clone3:
+        return Error(ENOSYS);
+
 #  ifdef __NR_fork
       case __NR_fork:
         return Error(ENOSYS);
